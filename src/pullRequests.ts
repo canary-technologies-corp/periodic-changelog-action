@@ -89,12 +89,12 @@ export async function updateChangelogFile({
     "---",
     `## ${getYearAndWeekNumber(now)}`,
     ...commits.map(commit => `* ${commit.title}`),
-    "\n\n",
+    "\n",
     changelog.bodyContent,
     "---",
     `Last ran: ${now.toISOString()}`,
   ];
-  return writeFile(changelogFilename, content.join());
+  return writeFile(changelogFilename, content.join("\n"));
 }
 
 function getYearAndWeekNumber(date: Date): string {
