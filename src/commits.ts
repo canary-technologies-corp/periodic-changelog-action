@@ -18,6 +18,7 @@ export async function getCommitsForChangelog({
 }): Promise<CommitLog[]> {
   let output = "";
   let error = "";
+  const relativeFilename = asRelative(changelogFilename);
   const commandOutput = await exec.exec(
     "git",
     [
@@ -25,8 +26,8 @@ export async function getCommitsForChangelog({
       "--oneline",
       `--since=${since.toISOString()}`,
       "--",
-      toPlatformPath(dirname(asRelative(changelogFilename))),
-      `':!${toPlatformPath(changelogFilename)}'`,
+      toPlatformPath(dirname(relativeFilename)),
+      `':!${toPlatformPath(relativeFilename)}'`,
     ],
     {
       listeners: {

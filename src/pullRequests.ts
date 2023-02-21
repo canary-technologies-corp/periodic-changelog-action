@@ -128,6 +128,8 @@ async function createGit(): Promise<SimpleGit> {
   const git = simpleGit({ baseDir });
   await git
     .addConfig("user.name", "Github Bot", undefined, log)
-    .addConfig("author.name", "Github Bot", undefined, log);
+    .addConfig("user.email", "<>", undefined, log)
+    .addConfig("author.name", "Github Bot", undefined, log)
+    .addConfig("author.email", "<>", undefined, log);
   return git;
 }

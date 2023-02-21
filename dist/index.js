@@ -220,13 +220,14 @@ function getCommitsForChangelog({ changelogFilename, since, }) {
     return __awaiter(this, void 0, void 0, function* () {
         let output = "";
         let error = "";
+        const relativeFilename = (0, changelogs_1.asRelative)(changelogFilename);
         const commandOutput = yield exec.exec("git", [
             "log",
             "--oneline",
             `--since=${since.toISOString()}`,
             "--",
-            (0, core_1.toPlatformPath)((0, path_1.dirname)((0, changelogs_1.asRelative)(changelogFilename))),
-            `':!${(0, core_1.toPlatformPath)(changelogFilename)}'`,
+            (0, core_1.toPlatformPath)((0, path_1.dirname)(relativeFilename)),
+            `':!${(0, core_1.toPlatformPath)(relativeFilename)}'`,
         ], {
             listeners: {
                 stdout: (data) => {
@@ -500,7 +501,9 @@ function createGit() {
         const git = (0, simple_git_1.default)({ baseDir });
         yield git
             .addConfig("user.name", "Github Bot", undefined, log)
-            .addConfig("author.name", "Github Bot", undefined, log);
+            .addConfig("user.email", "<>", undefined, log)
+            .addConfig("author.name", "Github Bot", undefined, log)
+            .addConfig("author.email", "<>", undefined, log);
         return git;
     });
 }
