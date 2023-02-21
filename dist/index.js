@@ -461,12 +461,12 @@ function updateChangelogFile({ changelogFilename, changelog, commits, }) {
             "---",
             `## ${getYearAndWeekNumber(now)}`,
             ...commits.map(commit => `* ${commit.title}`),
-            "\n\n",
+            "\n",
             changelog.bodyContent,
             "---",
             `Last ran: ${now.toISOString()}`,
         ];
-        return (0, promises_1.writeFile)(changelogFilename, content.join());
+        return (0, promises_1.writeFile)(changelogFilename, content.join("\n"));
     });
 }
 exports.updateChangelogFile = updateChangelogFile;
