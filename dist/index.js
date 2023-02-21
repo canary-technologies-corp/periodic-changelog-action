@@ -480,7 +480,7 @@ function updateChangelogFile({ changelogFilename, changelog, commits, }) {
             "---",
             `## ${getYearAndWeekNumber(now)}`,
             ...commits.map(commit => `* ${commit.title}`),
-            "\n",
+            "",
             changelog.bodyContent,
             "---",
             `Last ran: ${now.toISOString()}`,

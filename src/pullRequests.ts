@@ -97,7 +97,7 @@ export async function updateChangelogFile({
     "---",
     `## ${getYearAndWeekNumber(now)}`,
     ...commits.map(commit => `* ${commit.title}`),
-    "\n",
+    "",
     changelog.bodyContent,
     "---",
     `Last ran: ${now.toISOString()}`,
