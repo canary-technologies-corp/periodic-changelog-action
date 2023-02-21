@@ -1,7 +1,8 @@
 import * as exec from "@actions/exec";
-import { toPlatformPath } from "@actions/core";
-import { dirname } from "path";
 import { asRelative } from "./changelogs";
+import { dirname } from "path";
+import * as glob from "@actions/glob";
+import * as core from "@actions/core";
 
 export interface CommitLog {
   hash: string;
@@ -18,21 +19,14 @@ export async function getCommitsForChangelog({
 }): Promise<CommitLog[]> {
   let output = "";
   let error = "";
-  const relativeFilename = asRelative(changelogFilename);
 
-  // TODO: Remove
-  await exec.exec("git", ["--version"]);
-
+  // Use siblings to search to always exclude commits that only affected the
+  // current `CHANGELOG.md` file.
+  const siblings = await getRelativeSiblingPaths(changelogFilename);
+  core.debug(`Found siblings: ${siblings}`);
   const commandOutput = await exec.exec(
     "git",
-    [
-      "log",
-      "--oneline",
-      `--since=${since.toISOString()}`,
-      "--",
-      toPlatformPath(dirname(relativeFilename)),
-      `':!${toPlatformPath(relativeFilename)}'`,
-    ],
+    ["log", "--oneline", `--since=${since.toISOString()}`, "--", ...siblings],
     {
       listeners: {
         stdout: (data: Buffer) => {
@@ -61,4 +55,16 @@ export async function getCommitsForChangelog({
         tag: result[2]?.replace("(tag: ", "")?.replace(")", "") ?? null,
       };
     });
+}
+
+async function getRelativeSiblingPaths(
+  changelogFilename: string,
+): Promise<string[]> {
+  const relativeFilename = asRelative(changelogFilename);
+  const patterns = [`${dirname(relativeFilename)}/*`, `!${relativeFilename}`];
+  const globber = await glob.create(patterns.join("\n"), {
+    followSymbolicLinks: false,
+    implicitDescendants: false,
+  });
+  return (await globber.glob()).map(p => asRelative(p));
 }

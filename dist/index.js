@@ -213,24 +213,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getCommitsForChangelog = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
-const core_1 = __nccwpck_require__(2186);
-const path_1 = __nccwpck_require__(1017);
 const changelogs_1 = __nccwpck_require__(2082);
+const path_1 = __nccwpck_require__(1017);
+const glob = __importStar(__nccwpck_require__(8090));
+const core = __importStar(__nccwpck_require__(2186));
 function getCommitsForChangelog({ changelogFilename, since, }) {
     return __awaiter(this, void 0, void 0, function* () {
         let output = "";
         let error = "";
-        const relativeFilename = (0, changelogs_1.asRelative)(changelogFilename);
-        // TODO: Remove
-        yield exec.exec("git", ["--version"]);
-        const commandOutput = yield exec.exec("git", [
-            "log",
-            "--oneline",
-            `--since=${since.toISOString()}`,
-            "--",
-            (0, core_1.toPlatformPath)((0, path_1.dirname)(relativeFilename)),
-            `':!${(0, core_1.toPlatformPath)(relativeFilename)}'`,
-        ], {
+        // Use siblings to search to always exclude commits that only affected the
+        // current `CHANGELOG.md` file.
+        const siblings = yield getRelativeSiblingPaths(changelogFilename);
+        core.debug(`Found siblings: ${siblings}`);
+        const commandOutput = yield exec.exec("git", ["log", "--oneline", `--since=${since.toISOString()}`, "--", ...siblings], {
             listeners: {
                 stdout: (data) => {
                     output += data.toString();
@@ -261,6 +256,17 @@ function getCommitsForChangelog({ changelogFilename, since, }) {
     });
 }
 exports.getCommitsForChangelog = getCommitsForChangelog;
+function getRelativeSiblingPaths(changelogFilename) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const relativeFilename = (0, changelogs_1.asRelative)(changelogFilename);
+        const patterns = [`${(0, path_1.dirname)(relativeFilename)}/*`, `!${relativeFilename}`];
+        const globber = yield glob.create(patterns.join("\n"), {
+            followSymbolicLinks: false,
+            implicitDescendants: false,
+        });
+        return (yield globber.glob()).map(p => (0, changelogs_1.asRelative)(p));
+    });
+}
 
 
 /***/ }),
@@ -448,7 +454,8 @@ function createChangelogPullRequest({ changelogFilename, changelog, commits, }) 
         // Assign reviewer (if any).
         if (changelog.owner.length) {
             core.debug(`Adding to reviewers: ${changelog.owner}`);
-            yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github.context.repo), { pull_number: pull.number, reviewers: changelog.owner }));
+            const result = yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github.context.repo), { pull_number: pull.number, reviewers: changelog.owner }));
+            core.debug(JSON.stringify(result, null, 2));
         }
         else {
             core.debug("No reviewers found.");

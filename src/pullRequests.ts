@@ -57,11 +57,12 @@ export async function createChangelogPullRequest({
   // Assign reviewer (if any).
   if (changelog.owner.length) {
     core.debug(`Adding to reviewers: ${changelog.owner}`);
-    await octokit.rest.pulls.requestReviewers({
+    const result = await octokit.rest.pulls.requestReviewers({
       ...github.context.repo,
       pull_number: pull.number,
       reviewers: changelog.owner,
     });
+    core.debug(JSON.stringify(result, null, 2));
   } else {
     core.debug("No reviewers found.");
   }
