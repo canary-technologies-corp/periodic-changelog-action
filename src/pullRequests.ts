@@ -44,7 +44,7 @@ export async function createChangelogPullRequest({
     ...github.context.repo,
     base: baseBranch,
     head: branchName,
-    title: `${yearAndWeek}: Changelog for /${folder}`,
+    title: `${yearAndWeek}: Changelog for \`/${folder}\``,
     body: `Please review and merge the changelog for \`/${folder}\`.`,
     maintainer_can_modify: true,
   });
@@ -56,20 +56,26 @@ export async function createChangelogPullRequest({
 
   // Assign reviewer (if any).
   if (changelog.owner.length) {
+    core.debug(`Adding to reviewers: ${changelog.owner}`);
     await octokit.rest.pulls.requestReviewers({
       ...github.context.repo,
       pull_number: pull.number,
       reviewers: changelog.owner,
     });
+  } else {
+    core.debug("No reviewers found.");
   }
 
   // Add assignees (if any).
   if (changelog.notify.length) {
+    core.debug(`Adding to assignees: ${changelog.owner}`);
     await octokit.rest.issues.addAssignees({
       ...github.context.repo,
       issue_number: pull.number,
       assignees: changelog.notify,
     });
+  } else {
+    core.debug("No assignees found.");
   }
 
   return { url: pull._links.html.href };
@@ -111,7 +117,7 @@ function getWeekNumber(date: Date): number {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function log(err: any | Error, data?: any) {
-  if (data) core.info(data);
+  if (data) core.info(JSON.stringify(data, null, 2));
   if (err) core.error(err);
 }
 

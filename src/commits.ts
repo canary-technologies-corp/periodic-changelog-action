@@ -19,6 +19,10 @@ export async function getCommitsForChangelog({
   let output = "";
   let error = "";
   const relativeFilename = asRelative(changelogFilename);
+
+  // TODO: Remove
+  await exec.exec("git", ["--version"]);
+
   const commandOutput = await exec.exec(
     "git",
     [
