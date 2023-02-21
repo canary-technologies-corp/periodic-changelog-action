@@ -1,5 +1,6 @@
 name: self-test
-
+on:
+  workflow_dispatch:
 jobs:
   self: # Note: Uses 'dist' build.
     runs-on: ubuntu-latest
