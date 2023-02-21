@@ -33,18 +33,19 @@ export async function createChangelogPullRequest({
   await git.commit("Update Changelog.", undefined, log);
 
   // Push up new branch.
+  core.debug("Pushing upstream...");
   await git.push("origin", branchName, { "--set-upstream": null }, log);
 
   // Create pull request with a label.
   const yearAndWeek = getYearAndWeekNumber(new Date());
-  const folder = dirname(changelogFilename);
+  const folder = dirname(asRelative(changelogFilename));
   const octokit = github.getOctokit(core.getInput("github_token"));
   const { data: pull } = await octokit.rest.pulls.create({
     ...github.context.repo,
     base: baseBranch,
     head: branchName,
-    title: `${yearAndWeek}: Changelog for ${folder}`,
-    body: `Please review and merge the changelog for \`${folder}\`.`,
+    title: `${yearAndWeek}: Changelog for /${folder}`,
+    body: `Please review and merge the changelog for \`/${folder}\`.`,
     maintainer_can_modify: true,
   });
   await octokit.rest.issues.addLabels({

@@ -434,12 +434,13 @@ function createChangelogPullRequest({ changelogFilename, changelog, commits, }) 
         core.debug("Commiting changed file...");
         yield git.commit("Update Changelog.", undefined, log);
         // Push up new branch.
+        core.debug("Pushing upstream...");
         yield git.push("origin", branchName, { "--set-upstream": null }, log);
         // Create pull request with a label.
         const yearAndWeek = getYearAndWeekNumber(new Date());
-        const folder = (0, path_1.dirname)(changelogFilename);
+        const folder = (0, path_1.dirname)((0, changelogs_1.asRelative)(changelogFilename));
         const octokit = github.getOctokit(core.getInput("github_token"));
-        const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for ${folder}`, body: `Please review and merge the changelog for \`${folder}\`.`, maintainer_can_modify: true }));
+        const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for /${folder}`, body: `Please review and merge the changelog for \`/${folder}\`.`, maintainer_can_modify: true }));
         yield octokit.rest.issues.addLabels(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, labels: ["Changelog"] }));
         // Assign reviewer (if any).
         if (changelog.owner.length) {
