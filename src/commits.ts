@@ -2,7 +2,6 @@ import * as exec from "@actions/exec";
 import { toPlatformPath } from "@actions/core";
 import { dirname } from "path";
 import { asRelative } from "./changelogs";
-import * as core from "@actions/core";
 
 export interface CommitLog {
   hash: string;
@@ -47,14 +46,14 @@ export async function getCommitsForChangelog({
     .split("\n")
     .filter(line => line.trim().length > 0)
     .map(line => {
-    const result = line.match(/^([A-z0-9]+)\s(\(tag:\sv[0-9.]+\))?(.*)$/m);
+      const result = line.match(/^([A-z0-9]+)\s(\(tag:\sv[0-9.]+\))?(.*)$/m);
       if (!result?.[1] || !result?.[3]) {
-      throw Error(`Unparsable commit: ${line}`);
-    }
-    return {
-      hash: result[1],
-      title: result[3],
-      tag: result[2]?.replace("(tag: ", "")?.replace(")", "") ?? null,
-    };
-  });
+        throw Error(`Unparsable commit: ${line}`);
+      }
+      return {
+        hash: result[1],
+        title: result[3],
+        tag: result[2]?.replace("(tag: ", "")?.replace(")", "") ?? null,
+      };
+    });
 }
