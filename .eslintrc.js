@@ -7,7 +7,7 @@ module.exports = {
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   parserOptions: {
     parser: "@typescript-eslint/parser",
-    project: ["tsconfig.json"],
+    project: ["tsconfig.lint.json"],
     ecmaVersion: 2020,
   },
   rules: {
