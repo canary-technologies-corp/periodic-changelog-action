@@ -6,6 +6,29 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -18,10 +41,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseChangelog = exports.readChangelog = void 0;
 const promises_1 = __nccwpck_require__(3292);
+const core = __importStar(__nccwpck_require__(2186));
 function readChangelog(changelogFilename) {
     return __awaiter(this, void 0, void 0, function* () {
-        const content = yield (0, promises_1.readFile)(changelogFilename);
-        return parseChangelog(content.toString("utf8"));
+        core.debug(`Reading changelog: ${changelogFilename}`);
+        const content = yield (0, promises_1.readFile)(changelogFilename, { encoding: "utf8" });
+        return parseChangelog(content.toString());
     });
 }
 exports.readChangelog = readChangelog;
@@ -95,6 +120,29 @@ function parseLastRun(footerContent) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -104,20 +152,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.findChangelogs = void 0;
-const glob_1 = __importDefault(__nccwpck_require__(8090));
+exports.asRelative = exports.findChangelogs = void 0;
+const glob = __importStar(__nccwpck_require__(8090));
 function findChangelogs() {
     return __awaiter(this, void 0, void 0, function* () {
-        const patterns = ["**/CHANGELOG.md"];
-        const globber = yield glob_1.default.create(patterns.join("\n"));
+        const patterns = ["*/**/CHANGELOG.md", "!**/node_modules"];
+        const globber = yield glob.create(patterns.join("\n"), {
+            followSymbolicLinks: false,
+        });
         return globber.glob();
     });
 }
 exports.findChangelogs = findChangelogs;
+function asRelative(changelogFilename) {
+    return changelogFilename.replace(`${process.cwd()}/`, "");
+}
+exports.asRelative = asRelative;
 
 
 /***/ }),
@@ -127,6 +178,29 @@ exports.findChangelogs = findChangelogs;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -136,36 +210,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getCommitsForChangelog = void 0;
-const exec_1 = __importDefault(__nccwpck_require__(1514));
+const exec = __importStar(__nccwpck_require__(1514));
 const core_1 = __nccwpck_require__(2186);
-const path_1 = __importDefault(__nccwpck_require__(1017));
+const path_1 = __nccwpck_require__(1017);
+const changelogs_1 = __nccwpck_require__(2082);
 function getCommitsForChangelog({ changelogFilename, since, }) {
     return __awaiter(this, void 0, void 0, function* () {
         let output = "";
-        const error = "";
-        const commandOutput = yield exec_1.default.exec("git", [
+        let error = "";
+        const commandOutput = yield exec.exec("git", [
             "log",
             "--oneline",
             `--since=${since.toISOString()}`,
             "--",
-            (0, core_1.toPlatformPath)(path_1.default.basename(changelogFilename)),
+            (0, core_1.toPlatformPath)((0, path_1.dirname)((0, changelogs_1.asRelative)(changelogFilename))),
             `':!${(0, core_1.toPlatformPath)(changelogFilename)}'`,
         ], {
             listeners: {
                 stdout: (data) => {
                     output += data.toString();
                 },
+                stderr: (data) => {
+                    error += data.toString();
+                },
             },
         });
         if (commandOutput != 0) {
             throw new Error(`Error in 'git' - ${error}`);
         }
-        return output.split("\n").map(line => {
+        return output
+            .split("\n")
+            .filter(line => line.trim().length > 0)
+            .map(line => {
             var _a, _b, _c;
             const result = line.match(/^([A-z0-9]+)\s(\(tag:\sv[0-9.]+\))?(.*)$/m);
             if (!(result === null || result === void 0 ? void 0 : result[1]) || !(result === null || result === void 0 ? void 0 : result[3])) {
@@ -243,8 +321,8 @@ function updateChangelogs() {
         core.info(`Finding changelogs...`);
         const changelogs = yield (0, changelogs_1.findChangelogs)();
         core.info(`Found changelogs:\n${changelogs.join("\n")}`);
-        for (const changelog in changelogs) {
-            core.startGroup(changelog);
+        for (const changelog of changelogs) {
+            core.startGroup((0, changelogs_1.asRelative)(changelog));
             try {
                 updateChangelog(changelog);
             }
@@ -336,35 +414,40 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.updateChangelogFile = exports.createChangelogPullRequest = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const core = __importStar(__nccwpck_require__(2186));
-const github_1 = __importDefault(__nccwpck_require__(5438));
+const github = __importStar(__nccwpck_require__(5438));
 const simple_git_1 = __importDefault(__nccwpck_require__(9103));
-const path_1 = __importDefault(__nccwpck_require__(1017));
+const path_1 = __nccwpck_require__(1017);
+const changelogs_1 = __nccwpck_require__(2082);
 function createChangelogPullRequest({ changelogFilename, changelog, commits, }) {
     return __awaiter(this, void 0, void 0, function* () {
         const git = yield createGit();
         // Checkout a new branch.
         const baseBranch = core.getInput("base_branch");
         const branchName = getBranchName(changelogFilename);
+        core.debug(`Checking out new branch: ${branchName}`);
         yield git.checkoutBranch(branchName, baseBranch, log);
         // Update and commit changes to changelog.
+        core.debug("Updating changelog file...");
         yield updateChangelogFile({ changelogFilename, changelog, commits });
+        core.debug("Adding file...");
         yield git.add(changelogFilename, log);
+        core.debug("Commiting changed file...");
         yield git.commit("Update Changelog.", undefined, log);
         // Push up new branch.
         yield git.push("origin", branchName, { "--set-upstream": null }, log);
         // Create pull request with a label.
         const yearAndWeek = getYearAndWeekNumber(new Date());
-        const folder = path_1.default.basename(changelogFilename);
-        const octokit = github_1.default.getOctokit(core.getInput("github_token"));
-        const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github_1.default.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for ${folder}`, body: `Please review and merge the changelog for \`${folder}\`.`, maintainer_can_modify: true }));
-        yield octokit.rest.issues.addLabels(Object.assign(Object.assign({}, github_1.default.context.repo), { issue_number: pull.number, labels: ["Changelog"] }));
+        const folder = (0, path_1.dirname)(changelogFilename);
+        const octokit = github.getOctokit(core.getInput("github_token"));
+        const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for ${folder}`, body: `Please review and merge the changelog for \`${folder}\`.`, maintainer_can_modify: true }));
+        yield octokit.rest.issues.addLabels(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, labels: ["Changelog"] }));
         // Assign reviewer (if any).
         if (changelog.owner.length) {
-            yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github_1.default.context.repo), { pull_number: pull.number, reviewers: changelog.owner }));
+            yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github.context.repo), { pull_number: pull.number, reviewers: changelog.owner }));
         }
         // Add assignees (if any).
         if (changelog.notify.length) {
-            yield octokit.rest.issues.addAssignees(Object.assign(Object.assign({}, github_1.default.context.repo), { issue_number: pull.number, assignees: changelog.notify }));
+            yield octokit.rest.issues.addAssignees(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, assignees: changelog.notify }));
         }
         return { url: pull._links.html.href };
     });
@@ -404,8 +487,7 @@ function log(err, data) {
         core.error(err);
 }
 function getBranchName(changelogFilename) {
-    const name = path_1.default
-        .basename(changelogFilename)
+    const name = (0, changelogs_1.asRelative)((0, path_1.dirname)(changelogFilename))
         .replace("/", "-")
         .replace("\\", "-");
     const now = new Date();
@@ -413,7 +495,7 @@ function getBranchName(changelogFilename) {
 }
 function createGit() {
     return __awaiter(this, void 0, void 0, function* () {
-        const baseDir = path_1.default.join(process.cwd() || "");
+        const baseDir = (0, path_1.join)(process.cwd() || "");
         const git = (0, simple_git_1.default)({ baseDir });
         yield git
             .addConfig("user.name", "Github Bot", undefined, log)

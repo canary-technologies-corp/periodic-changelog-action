@@ -1,4 +1,5 @@
 import { readFile } from "fs/promises";
+import * as core from "@actions/core";
 
 export interface Changelog {
   headerContent: string | null;
@@ -12,8 +13,9 @@ export interface Changelog {
 export async function readChangelog(
   changelogFilename: string,
 ): Promise<Changelog> {
-  const content = await readFile(changelogFilename);
-  return parseChangelog(content.toString("utf8"));
+  core.debug(`Reading changelog: ${changelogFilename}`);
+  const content = await readFile(changelogFilename, { encoding: "utf8" });
+  return parseChangelog(content.toString());
 }
 
 export function parseChangelog(changelogString: string): Changelog {

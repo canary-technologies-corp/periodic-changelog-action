@@ -1,6 +1,8 @@
-import exec from "@actions/exec";
+import * as exec from "@actions/exec";
 import { toPlatformPath } from "@actions/core";
-import path from "path";
+import { dirname } from "path";
+import { asRelative } from "./changelogs";
+import * as core from "@actions/core";
 
 export interface CommitLog {
   hash: string;
@@ -16,7 +18,7 @@ export async function getCommitsForChangelog({
   since: Date;
 }): Promise<CommitLog[]> {
   let output = "";
-  const error = "";
+  let error = "";
   const commandOutput = await exec.exec(
     "git",
     [
@@ -24,7 +26,7 @@ export async function getCommitsForChangelog({
       "--oneline",
       `--since=${since.toISOString()}`,
       "--",
-      toPlatformPath(path.basename(changelogFilename)),
+      toPlatformPath(dirname(asRelative(changelogFilename))),
       `':!${toPlatformPath(changelogFilename)}'`,
     ],
     {
@@ -32,15 +34,21 @@ export async function getCommitsForChangelog({
         stdout: (data: Buffer) => {
           output += data.toString();
         },
+        stderr: (data: Buffer) => {
+          error += data.toString();
+        },
       },
     },
   );
   if (commandOutput != 0) {
     throw new Error(`Error in 'git' - ${error}`);
   }
-  return output.split("\n").map(line => {
+  return output
+    .split("\n")
+    .filter(line => line.trim().length > 0)
+    .map(line => {
     const result = line.match(/^([A-z0-9]+)\s(\(tag:\sv[0-9.]+\))?(.*)$/m);
-    if (!result?.[1] || !result?.[3]) {
+      if (!result?.[1] || !result?.[3]) {
       throw Error(`Unparsable commit: ${line}`);
     }
     return {

@@ -1,4 +1,4 @@
-name: self-test
+name: Test Period Changelog
 on:
   workflow_dispatch:
 jobs:

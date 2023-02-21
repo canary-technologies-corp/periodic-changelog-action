@@ -2,9 +2,10 @@ import { Changelog } from "./changelog";
 import { CommitLog } from "./commits";
 import { writeFile } from "fs/promises";
 import * as core from "@actions/core";
-import github from "@actions/github";
+import * as github from "@actions/github";
 import simpleGit, { SimpleGit } from "simple-git";
-import path from "path";
+import { dirname, join } from "path";
+import { asRelative } from "./changelogs";
 
 export async function createChangelogPullRequest({
   changelogFilename,
@@ -20,11 +21,15 @@ export async function createChangelogPullRequest({
   // Checkout a new branch.
   const baseBranch = core.getInput("base_branch") as string;
   const branchName = getBranchName(changelogFilename);
+  core.debug(`Checking out new branch: ${branchName}`);
   await git.checkoutBranch(branchName, baseBranch, log);
 
   // Update and commit changes to changelog.
+  core.debug("Updating changelog file...");
   await updateChangelogFile({ changelogFilename, changelog, commits });
+  core.debug("Adding file...");
   await git.add(changelogFilename, log);
+  core.debug("Commiting changed file...");
   await git.commit("Update Changelog.", undefined, log);
 
   // Push up new branch.
@@ -32,7 +37,7 @@ export async function createChangelogPullRequest({
 
   // Create pull request with a label.
   const yearAndWeek = getYearAndWeekNumber(new Date());
-  const folder = path.basename(changelogFilename);
+  const folder = dirname(changelogFilename);
   const octokit = github.getOctokit(core.getInput("github_token"));
   const { data: pull } = await octokit.rest.pulls.create({
     ...github.context.repo,
@@ -110,8 +115,7 @@ function log(err: any | Error, data?: any) {
 }
 
 function getBranchName(changelogFilename: string): string {
-  const name = path
-    .basename(changelogFilename)
+  const name = asRelative(dirname(changelogFilename))
     .replace("/", "-")
     .replace("\\", "-");
   const now = new Date();
@@ -119,7 +123,7 @@ function getBranchName(changelogFilename: string): string {
 }
 
 async function createGit(): Promise<SimpleGit> {
-  const baseDir = path.join(process.cwd() || "");
+  const baseDir = join(process.cwd() || "");
   const git = simpleGit({ baseDir });
   await git
     .addConfig("user.name", "Github Bot", undefined, log)

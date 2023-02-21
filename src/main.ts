@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import { readChangelog } from "./changelog";
-import { findChangelogs } from "./changelogs";
+import { asRelative, findChangelogs } from "./changelogs";
 import { getCommitsForChangelog } from "./commits";
 import { createChangelogPullRequest } from "./pullRequests";
 
@@ -17,8 +17,8 @@ async function updateChangelogs(): Promise<void> {
   const changelogs = await findChangelogs();
   core.info(`Found changelogs:\n${changelogs.join("\n")}`);
 
-  for (const changelog in changelogs) {
-    core.startGroup(changelog);
+  for (const changelog of changelogs) {
+    core.startGroup(asRelative(changelog));
     try {
       updateChangelog(changelog);
     } catch (error) {
