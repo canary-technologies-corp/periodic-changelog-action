@@ -3,48 +3,37 @@ import { CommitLog } from "./commits";
 import { writeFile } from "fs/promises";
 import * as core from "@actions/core";
 import github from "@actions/github";
-import simpleGit, { Response } from "simple-git";
+import simpleGit, { SimpleGit } from "simple-git";
 import path from "path";
-
-const baseDir = path.join(process.cwd() || "")
-const git = simpleGit({ baseDir })
 
 export async function createChangelogPullRequest({
   changelogFilename,
   changelog,
   commits,
 }: {
-  changelogFilename: string,
-  changelog: Changelog,
-  commits: CommitLog[],
+  changelogFilename: string;
+  changelog: Changelog;
+  commits: CommitLog[];
 }): Promise<{ url: string }> {
-  // Setup Git.
-  await git
-  .addConfig("user.name", "Github Bot", undefined, log)
-  .addConfig("author.name", "Github Bot", undefined, log)
+  const git = await createGit();
 
   // Checkout a new branch.
   const baseBranch = core.getInput("base_branch") as string;
   const branchName = getBranchName(changelogFilename);
   await git.checkoutBranch(branchName, baseBranch, log);
-  
+
   // Update and commit changes to changelog.
   await updateChangelogFile({ changelogFilename, changelog, commits });
-  await git.add(changelogFilename, log)
+  await git.add(changelogFilename, log);
   await git.commit("Update Changelog.", undefined, log);
 
   // Push up new branch.
-  await git.push(
-    "origin",
-    branchName,
-    { "--set-upstream": null },
-    log,
-  );
+  await git.push("origin", branchName, { "--set-upstream": null }, log);
 
   // Create pull request with a label.
   const yearAndWeek = getYearAndWeekNumber(new Date());
   const folder = path.basename(changelogFilename);
-  const octokit = github.getOctokit(core.getInput("github_token"))
+  const octokit = github.getOctokit(core.getInput("github_token"));
   const { data: pull } = await octokit.rest.pulls.create({
     ...github.context.repo,
     base: baseBranch,
@@ -74,21 +63,20 @@ export async function createChangelogPullRequest({
       ...github.context.repo,
       issue_number: pull.number,
       assignees: changelog.notify,
-    })
+    });
   }
 
   return { url: pull._links.html.href };
 }
-
 
 export async function updateChangelogFile({
   changelogFilename,
   changelog,
   commits,
 }: {
-  changelogFilename: string,
-  changelog: Changelog,
-  commits: CommitLog[],
+  changelogFilename: string;
+  changelog: Changelog;
+  commits: CommitLog[];
 }): Promise<void> {
   const now = new Date();
   const content = [
@@ -100,7 +88,7 @@ export async function updateChangelogFile({
     changelog.bodyContent,
     "---",
     `Last ran: ${now.toISOString()}`,
-  ];  
+  ];
   return writeFile(changelogFilename, content.join());
 }
 
@@ -115,13 +103,26 @@ function getWeekNumber(date: Date): number {
   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function log(err: any | Error, data?: any) {
-  if (data) core.info(data)
-  if (err) core.error(err)
+  if (data) core.info(data);
+  if (err) core.error(err);
 }
 
 function getBranchName(changelogFilename: string): string {
-  const name = path.basename(changelogFilename).replace("/", "-").replace("\\", "-");
+  const name = path
+    .basename(changelogFilename)
+    .replace("/", "-")
+    .replace("\\", "-");
   const now = new Date();
   return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}`;
+}
+
+async function createGit(): Promise<SimpleGit> {
+  const baseDir = path.join(process.cwd() || "");
+  const git = simpleGit({ baseDir });
+  await git
+    .addConfig("user.name", "Github Bot", undefined, log)
+    .addConfig("author.name", "Github Bot", undefined, log);
+  return git;
 }

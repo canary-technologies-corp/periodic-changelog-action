@@ -5,7 +5,7 @@ describe("parseChangelog", () => {
     // Arrange
     const content = `
     Some random changelog content is here.
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
@@ -23,15 +23,19 @@ describe("parseChangelog", () => {
     Some random changelog content is here.
     ---
     Last ran: 2023-02-19T14:46:41.533Z
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
     // Assert
     expect(result).toMatchObject({
       headerContent: null,
-      bodyContent: expect.stringContaining("Some random changelog content is here."),
-      footerContent: expect.stringContaining("Last ran: 2023-02-19T14:46:41.533Z"),
+      bodyContent: expect.stringContaining(
+        "Some random changelog content is here.",
+      ),
+      footerContent: expect.stringContaining(
+        "Last ran: 2023-02-19T14:46:41.533Z",
+      ),
       lastRan: new Date("2023-02-19T14:46:41.533Z"),
     });
   });
@@ -42,14 +46,16 @@ describe("parseChangelog", () => {
     # Title   
     ---
     Some random changelog content is here.
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
     // Assert
     expect(result).toMatchObject({
       headerContent: expect.stringContaining("# Title"),
-      bodyContent: expect.stringContaining("Some random changelog content is here."),
+      bodyContent: expect.stringContaining(
+        "Some random changelog content is here.",
+      ),
       footerContent: null,
     });
   });
@@ -61,7 +67,7 @@ describe("parseChangelog", () => {
     Owner: someowner
     ---
     Some random changelog content is here.
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
@@ -79,7 +85,7 @@ describe("parseChangelog", () => {
     Owner: someowner,someowner-1, someowner_2
     ---
     Some random changelog content is here.
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
@@ -97,7 +103,7 @@ describe("parseChangelog", () => {
     Notify: someuser 
     ---
     Some random changelog content is here.
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
@@ -115,7 +121,7 @@ describe("parseChangelog", () => {
     Notify: someuser,user_1, user-2
     ---
     Some random changelog content is here.
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 
@@ -134,7 +140,7 @@ describe("parseChangelog", () => {
     Some random changelog content is here.
     ---
     Last ran: 21-2023-31
-    `
+    `;
     // Act
     const result = parseChangelog(content);
 

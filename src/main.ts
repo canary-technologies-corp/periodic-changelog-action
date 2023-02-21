@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import { readChangelog } from "./changelog";
-import { findChangelogs } from './changelogs'
+import { findChangelogs } from "./changelogs";
 import { getCommitsForChangelog } from "./commits";
 import { createChangelogPullRequest } from "./pullRequests";
 
@@ -8,25 +8,25 @@ async function run(): Promise<void> {
   try {
     updateChangelogs();
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) core.setFailed(error.message);
   }
 }
 
 async function updateChangelogs(): Promise<void> {
-  core.info(`Finding changelogs...`)
-    const changelogs = await findChangelogs();
-    core.info(`Found changelogs:\n${changelogs.join("\n")}`)
+  core.info(`Finding changelogs...`);
+  const changelogs = await findChangelogs();
+  core.info(`Found changelogs:\n${changelogs.join("\n")}`);
 
-    for (const changelog in changelogs) {
-      core.startGroup(changelog);
-      try {
-        updateChangelog(changelog);  
-      } catch (error) {
-        if (error instanceof Error) core.error(error.message);
-      } finally {
-        core.endGroup();
-      }
+  for (const changelog in changelogs) {
+    core.startGroup(changelog);
+    try {
+      updateChangelog(changelog);
+    } catch (error) {
+      if (error instanceof Error) core.error(error.message);
+    } finally {
+      core.endGroup();
     }
+  }
 }
 
 async function updateChangelog(changelogFilename: string): Promise<void> {
@@ -40,13 +40,13 @@ async function updateChangelog(changelogFilename: string): Promise<void> {
     changelogFilename: changelogFilename,
     since,
   });
-  
+
   if (!commits.length) {
-    core.info("No commits... skipping changelog.")
+    core.info("No commits... skipping changelog.");
     return;
   }
   core.info(`Found ${commits.length} commits. Creating PR...`);
-  
+
   const { url } = await createChangelogPullRequest({
     changelogFilename,
     changelog,
@@ -54,7 +54,7 @@ async function updateChangelog(changelogFilename: string): Promise<void> {
   });
 
   core.info(`Created PR: ${url}`);
-} 
+}
 
 function getLastWeekDate() {
   const weekAgo = new Date();
@@ -62,4 +62,4 @@ function getLastWeekDate() {
   return weekAgo;
 }
 
-run()
+run();

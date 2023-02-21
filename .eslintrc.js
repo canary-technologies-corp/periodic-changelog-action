@@ -3,15 +3,12 @@ module.exports = {
   env: {
     node: true,
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ["@typescript-eslint", "prettier"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  parser: "@typescript-eslint/parser",
-  settings: {
-    "import/resolver": {
-      typescript: {
-        extensions: [".ts", ".js", ".vue"],
-      },
-    },
+  parserOptions: {
+    parser: "@typescript-eslint/parser",
+    project: ["tsconfig.json"],
+    ecmaVersion: 2020,
   },
   rules: {
     "prettier/prettier": "error",

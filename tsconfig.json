@@ -1,16 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2016",                                  
-    "lib": ["es6"],                                      
-    "module": "commonjs",                                
-    "rootDir": "src",                                    
-    "resolveJsonModule": true,                           
-    "allowJs": true,                                     
-    "outDir": "build",                                   
-    "esModuleInterop": true,                             
+    "target": "es2016",
+    "lib": ["es6"],  
+    "module": "commonjs", 
+    "rootDir": "./src",
+    "outDir": "./lib",    
+    "esModuleInterop": true,           
     "forceConsistentCasingInFileNames": true,            
-    "strict": true,                                      
-    "noImplicitAny": true,                               
-    "skipLibCheck": true                                 
-  }
+    "strict": true,  
+    "noImplicitAny": true,
+    "skipLibCheck": true  
+  },
+  "exclude": ["node_modules", "example", "**/*.test.ts"],
 }
