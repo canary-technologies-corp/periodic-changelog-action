@@ -21,9 +21,9 @@ export async function readChangelog(
 export function parseChangelog(changelogString: string): Changelog {
   const { header, body, footer } = parseSections(changelogString);
   return {
-    headerContent: header || null,
-    bodyContent: body,
-    footerContent: footer || null,
+    headerContent: header?.trim() || null,
+    bodyContent: body.trim(),
+    footerContent: footer?.trim() || null,
     owner: header ? parseOwner(header) : [],
     notify: header ? parseNotify(header) : [],
     lastRan: footer ? parseLastRun(footer) : null,
@@ -39,7 +39,7 @@ function parseSections(content: string): {
   if (result.length >= 3) {
     return {
       header: result[0],
-      body: result.slice(1, content.length - 1).join("---"),
+      body: result.slice(1, result.length - 1).join("\n---\n"),
       footer: result[result.length - 1],
     };
   }

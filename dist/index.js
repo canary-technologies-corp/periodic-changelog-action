@@ -53,9 +53,9 @@ exports.readChangelog = readChangelog;
 function parseChangelog(changelogString) {
     const { header, body, footer } = parseSections(changelogString);
     return {
-        headerContent: header || null,
-        bodyContent: body,
-        footerContent: footer || null,
+        headerContent: (header === null || header === void 0 ? void 0 : header.trim()) || null,
+        bodyContent: body.trim(),
+        footerContent: (footer === null || footer === void 0 ? void 0 : footer.trim()) || null,
         owner: header ? parseOwner(header) : [],
         notify: header ? parseNotify(header) : [],
         lastRan: footer ? parseLastRun(footer) : null,
@@ -67,7 +67,7 @@ function parseSections(content) {
     if (result.length >= 3) {
         return {
             header: result[0],
-            body: result.slice(1, content.length - 1).join("---"),
+            body: result.slice(1, result.length - 1).join("\n---\n"),
             footer: result[result.length - 1],
         };
     }

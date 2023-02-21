@@ -12,7 +12,7 @@ describe("parseChangelog", () => {
     // Assert
     expect(result).toMatchObject({
       headerContent: null,
-      bodyContent: content,
+      bodyContent: "Some random changelog content is here.",
       footerContent: null,
     });
   });
@@ -57,6 +57,25 @@ describe("parseChangelog", () => {
         "Some random changelog content is here.",
       ),
       footerContent: null,
+    });
+  });
+
+  test("parses with header, body and footer", () => {
+    // Arrange
+    const content = `
+    # Title
+    ---
+    Some random changelog content is here.
+    ---
+    Last ran: 2023-02-19T14:46:41.533Z`;
+    // Act
+    const result = parseChangelog(content);
+
+    // Assert
+    expect(result).toMatchObject({
+      headerContent: "# Title",
+      bodyContent: "Some random changelog content is here.",
+      footerContent: "Last ran: 2023-02-19T14:46:41.533Z",
     });
   });
 
