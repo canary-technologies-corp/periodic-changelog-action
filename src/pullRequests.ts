@@ -1,0 +1,127 @@
+import { Changelog } from "./changelog";
+import { CommitLog } from "./commits";
+import { writeFile } from "fs/promises";
+import * as core from "@actions/core";
+import github from "@actions/github";
+import simpleGit, { Response } from "simple-git";
+import path from "path";
+
+const baseDir = path.join(process.cwd() || "")
+const git = simpleGit({ baseDir })
+
+export async function createChangelogPullRequest({
+  changelogFilename,
+  changelog,
+  commits,
+}: {
+  changelogFilename: string,
+  changelog: Changelog,
+  commits: CommitLog[],
+}): Promise<{ url: string }> {
+  // Setup Git.
+  await git
+  .addConfig("user.name", "Github Bot", undefined, log)
+  .addConfig("author.name", "Github Bot", undefined, log)
+
+  // Checkout a new branch.
+  const baseBranch = core.getInput("base_branch") as string;
+  const branchName = getBranchName(changelogFilename);
+  await git.checkoutBranch(branchName, baseBranch, log);
+  
+  // Update and commit changes to changelog.
+  await updateChangelogFile({ changelogFilename, changelog, commits });
+  await git.add(changelogFilename, log)
+  await git.commit("Update Changelog.", undefined, log);
+
+  // Push up new branch.
+  await git.push(
+    "origin",
+    branchName,
+    { "--set-upstream": null },
+    log,
+  );
+
+  // Create pull request with a label.
+  const yearAndWeek = getYearAndWeekNumber(new Date());
+  const folder = path.basename(changelogFilename);
+  const octokit = github.getOctokit(core.getInput("github_token"))
+  const { data: pull } = await octokit.rest.pulls.create({
+    ...github.context.repo,
+    base: baseBranch,
+    head: branchName,
+    title: `${yearAndWeek}: Changelog for ${folder}`,
+    body: `Please review and merge the changelog for \`${folder}\`.`,
+    maintainer_can_modify: true,
+  });
+  await octokit.rest.issues.addLabels({
+    ...github.context.repo,
+    issue_number: pull.number,
+    labels: ["Changelog"],
+  });
+
+  // Assign reviewer (if any).
+  if (changelog.owner.length) {
+    await octokit.rest.pulls.requestReviewers({
+      ...github.context.repo,
+      pull_number: pull.number,
+      reviewers: changelog.owner,
+    });
+  }
+
+  // Add assignees (if any).
+  if (changelog.notify.length) {
+    await octokit.rest.issues.addAssignees({
+      ...github.context.repo,
+      issue_number: pull.number,
+      assignees: changelog.notify,
+    })
+  }
+
+  return { url: pull._links.html.href };
+}
+
+
+export async function updateChangelogFile({
+  changelogFilename,
+  changelog,
+  commits,
+}: {
+  changelogFilename: string,
+  changelog: Changelog,
+  commits: CommitLog[],
+}): Promise<void> {
+  const now = new Date();
+  const content = [
+    changelog.headerContent,
+    "---",
+    `## ${getYearAndWeekNumber(now)}`,
+    ...commits.map(commit => `* ${commit.title}`),
+    "\n\n",
+    changelog.bodyContent,
+    "---",
+    `Last ran: ${now.toISOString()}`,
+  ];  
+  return writeFile(changelogFilename, content.join());
+}
+
+function getYearAndWeekNumber(date: Date): string {
+  const weekNumber = getWeekNumber(date);
+  return `${date.getFullYear()}.${weekNumber < 10 ? "0" : ""}${weekNumber}`;
+}
+
+function getWeekNumber(date: Date): number {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
+
+function log(err: any | Error, data?: any) {
+  if (data) core.info(data)
+  if (err) core.error(err)
+}
+
+function getBranchName(changelogFilename: string): string {
+  const name = path.basename(changelogFilename).replace("/", "-").replace("\\", "-");
+  const now = new Date();
+  return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}`;
+}

@@ -1,0 +1,16 @@
+name: Periodic Changelog
+description: Generates updates to changelogs based on pull requests
+author: Canary Technologies Corp
+inputs:
+  base_branch:
+    description: Branch the pull requests should be against (e.g 'main')
+    required: false
+    default: main
+  # Input not required from the user
+  github_token:
+    description: The token used to make requests to the GitHub API. It's NOT used to make commits and should not be changed.
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: node16
+  main: dist/index.js
