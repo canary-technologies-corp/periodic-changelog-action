@@ -1,9 +1,12 @@
 name: Test Notify Slack
 on:
-  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    types: [labeled, closed]
+
 jobs:
   notify-slack: # Note: Uses 'dist' build.
-    # if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'changelog')
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'changelog')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
