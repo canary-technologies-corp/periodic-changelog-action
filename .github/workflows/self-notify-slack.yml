@@ -10,5 +10,6 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./
-        operation: notify_slack
-        slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          operation: notify_slack
+          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
