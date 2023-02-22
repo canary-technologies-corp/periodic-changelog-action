@@ -54,9 +54,21 @@ export async function createChangelogPullRequest({
     labels: ["Changelog"],
   });
 
+  // Add assignees (if any).
+  if (changelog.notify.length) {
+    core.debug(`Adding assignees: ${changelog.owner}`);
+    await octokit.rest.issues.addAssignees({
+      ...github.context.repo,
+      issue_number: pull.number,
+      assignees: changelog.notify,
+    });
+  } else {
+    core.debug("No assignees found.");
+  }
+
   // Assign reviewer (if any).
   if (changelog.owner.length) {
-    core.debug(`Adding to reviewers: ${changelog.owner}`);
+    core.debug(`Adding reviewers: ${changelog.owner}`);
     const result = await octokit.rest.pulls.requestReviewers({
       ...github.context.repo,
       pull_number: pull.number,
@@ -65,18 +77,6 @@ export async function createChangelogPullRequest({
     core.debug(JSON.stringify(result, null, 2));
   } else {
     core.debug("No reviewers found.");
-  }
-
-  // Add assignees (if any).
-  if (changelog.notify.length) {
-    core.debug(`Adding to assignees: ${changelog.owner}`);
-    await octokit.rest.issues.addAssignees({
-      ...github.context.repo,
-      issue_number: pull.number,
-      assignees: changelog.notify,
-    });
-  } else {
-    core.debug("No assignees found.");
   }
 
   return { url: pull._links.html.href };
@@ -94,12 +94,12 @@ export async function updateChangelogFile({
   const now = new Date();
   const content = [
     changelog.headerContent,
-    "---",
+    "\n---\n",
     `## ${getYearAndWeekNumber(now)}`,
     ...commits.map(commit => `* ${commit.title}`),
     "",
     changelog.bodyContent,
-    "---",
+    "\n---\n",
     `Last ran: ${now.toISOString()}`,
   ];
   return writeFile(changelogFilename, content.join("\n"));

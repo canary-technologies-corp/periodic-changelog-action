@@ -451,22 +451,22 @@ function createChangelogPullRequest({ changelogFilename, changelog, commits, }) 
         const octokit = github.getOctokit(core.getInput("github_token"));
         const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for \`/${folder}\``, body: `Please review and merge the changelog for \`/${folder}\`.`, maintainer_can_modify: true }));
         yield octokit.rest.issues.addLabels(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, labels: ["Changelog"] }));
+        // Add assignees (if any).
+        if (changelog.notify.length) {
+            core.debug(`Adding assignees: ${changelog.owner}`);
+            yield octokit.rest.issues.addAssignees(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, assignees: changelog.notify }));
+        }
+        else {
+            core.debug("No assignees found.");
+        }
         // Assign reviewer (if any).
         if (changelog.owner.length) {
-            core.debug(`Adding to reviewers: ${changelog.owner}`);
+            core.debug(`Adding reviewers: ${changelog.owner}`);
             const result = yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github.context.repo), { pull_number: pull.number, reviewers: changelog.owner }));
             core.debug(JSON.stringify(result, null, 2));
         }
         else {
             core.debug("No reviewers found.");
-        }
-        // Add assignees (if any).
-        if (changelog.notify.length) {
-            core.debug(`Adding to assignees: ${changelog.owner}`);
-            yield octokit.rest.issues.addAssignees(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, assignees: changelog.notify }));
-        }
-        else {
-            core.debug("No assignees found.");
         }
         return { url: pull._links.html.href };
     });
@@ -477,12 +477,12 @@ function updateChangelogFile({ changelogFilename, changelog, commits, }) {
         const now = new Date();
         const content = [
             changelog.headerContent,
-            "---",
+            "\n---\n",
             `## ${getYearAndWeekNumber(now)}`,
             ...commits.map(commit => `* ${commit.title}`),
             "",
             changelog.bodyContent,
-            "---",
+            "\n---\n",
             `Last ran: ${now.toISOString()}`,
         ];
         return (0, promises_1.writeFile)(changelogFilename, content.join("\n"));
