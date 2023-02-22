@@ -5,9 +5,15 @@ export interface Changelog {
   headerContent: string | null;
   bodyContent: string;
   footerContent: string | null;
+  changeSets: ChangeSet[];
   owner: string[];
   notify: string[];
   lastRan: Date | null;
+}
+
+export interface ChangeSet {
+  title: string;
+  changes: string[];
 }
 
 export async function readChangelog(
@@ -24,6 +30,7 @@ export function parseChangelog(changelogString: string): Changelog {
     headerContent: header?.trim() || null,
     bodyContent: body.trim(),
     footerContent: footer?.trim() || null,
+    changeSets: parseChangeSets(body.trim()),
     owner: header ? parseOwner(header) : [],
     notify: header ? parseNotify(header) : [],
     lastRan: footer ? parseLastRun(footer) : null,
@@ -85,4 +92,41 @@ function parseLastRun(footerContent: string): Date | null {
     return isNaN(date.getTime()) ? null : date;
   }
   return null;
+}
+
+function parseChangeSets(body: string): ChangeSet[] {
+  const sections: Array<{
+    title: string;
+    startIndex: number;
+    raw: string;
+  }> = [];
+
+  const headingsRegex = /##\s*([A-z0-9.]*)\s*\n/gi;
+  let match: RegExpExecArray | null;
+  while ((match = headingsRegex.exec(body))) {
+    sections.push({
+      raw: match[0],
+      title: match[1],
+      startIndex: match.index,
+    });
+  }
+
+  return sections.map((section, index) => {
+    const start = section.startIndex + section.raw.length;
+    const end = sections[index + 1]
+      ? sections[index + 1].startIndex
+      : undefined;
+    const content = body.slice(start, end);
+    return {
+      title: section.title,
+      changes: parseChanges(content),
+    };
+  });
+}
+
+function parseChanges(changesContent: string): string[] {
+  return changesContent
+    .split(/^\s*\*\s+/gm)
+    .map(c => c.trim())
+    .filter(c => c);
 }

@@ -170,4 +170,45 @@ describe("parseChangelog", () => {
       lastRan: null,
     });
   });
+
+  test("parses changesets", () => {
+    // Arrange
+    const content = `
+    # Title
+    ---
+
+    ## 2023.02
+    * Change 4
+    * Change 5
+    * Change 6 - *bolded text*!
+    
+    ## 2023.01
+    * Change 1
+    * Change 2
+      Indented content part of change 2.
+    * Change 3
+    
+    ---
+    Last ran: 2023-02-19T14:46:41.533Z`;
+    // Act
+    const result = parseChangelog(content);
+
+    // Assert
+    expect(result).toMatchObject({
+      changeSets: [
+        {
+          title: "2023.02",
+          changes: ["Change 4", "Change 5", "Change 6 - *bolded text*!"],
+        },
+        {
+          title: "2023.01",
+          changes: [
+            "Change 1",
+            "Change 2\n      Indented content part of change 2.",
+            "Change 3",
+          ],
+        },
+      ],
+    });
+  });
 });

@@ -6,6 +6,10 @@ inputs:
     description: Branch the pull requests should be against (e.g 'main')
     required: false
     default: main
+  operation:
+    description: 'update_changelogs' or 'notify_slack' 
+    required: false
+    default: update_changelogs
   # Input not required from the user
   github_token:
     description: The token used to make requests to the GitHub API. It's NOT used to make commits and should not be changed.

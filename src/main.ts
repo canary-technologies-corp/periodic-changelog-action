@@ -4,9 +4,24 @@ import { asRelative, findChangelogs } from "./changelogs";
 import { getCommitsForChangelog } from "./commits";
 import { createChangelogPullRequest } from "./pullRequests";
 
+enum Operation {
+  UPDATE_CHANGELOGS = "update_changelogs",
+  NOTIFY_SLACK = "notify_slack",
+}
+
 async function run(): Promise<void> {
   try {
-    updateChangelogs();
+    const operation = core.getInput("operation") as Operation;
+    switch (operation) {
+      case Operation.UPDATE_CHANGELOGS:
+        await updateChangelogs();
+        break;
+      case Operation.NOTIFY_SLACK:
+        await notifySlack();
+        break;
+      default:
+        throw new Error(`Unknown operation: ${operation}`);
+    }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
@@ -54,6 +69,10 @@ async function updateChangelog(changelogFilename: string): Promise<void> {
   });
 
   core.info(`Created PR: ${url}`);
+}
+
+async function notifySlack() {
+  // TODO: Notify Slack.
 }
 
 function getLastWeekDate() {
