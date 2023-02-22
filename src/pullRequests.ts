@@ -127,7 +127,7 @@ function getBranchName(changelogFilename: string): string {
     .replace("/", "-")
     .replace("\\", "-");
   const now = new Date();
-  const seconds = now.getTime() / 1000;
+  const seconds = Math.round(now.getTime() / 1000);
   return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}-${seconds}`;
 }
 
