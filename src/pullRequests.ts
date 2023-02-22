@@ -127,7 +127,8 @@ function getBranchName(changelogFilename: string): string {
     .replace("/", "-")
     .replace("\\", "-");
   const now = new Date();
-  return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}`;
+  const seconds = now.getTime() / 1000;
+  return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}-${seconds}`;
 }
 
 async function createGit(): Promise<SimpleGit> {

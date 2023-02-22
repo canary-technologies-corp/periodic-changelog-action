@@ -75,7 +75,7 @@ async function getRelativeSiblingPaths(
 function enhanceTitleWithMarkdown(title: string): string {
   const result = title.trim().match(/^(.*)\(#(\d+)\)$/);
   if (!result?.[2]) return title;
-  return `${result[1]} ([#${result[2]}](${buildPullUrl(result[2])}))}`;
+  return `${result[1].trim()} ([#${result[2]}](${buildPullUrl(result[2])}))`;
 }
 
 function buildPullUrl(pullNumber: string): string {

@@ -273,7 +273,7 @@ function enhanceTitleWithMarkdown(title) {
     const result = title.trim().match(/^(.*)\(#(\d+)\)$/);
     if (!(result === null || result === void 0 ? void 0 : result[2]))
         return title;
-    return `${result[1]} ([#${result[2]}](${buildPullUrl(result[2])}))}`;
+    return `${result[1].trim()} ([#${result[2]}](${buildPullUrl(result[2])}))`;
 }
 function buildPullUrl(pullNumber) {
     const { owner, repo } = github.context.repo;
@@ -522,7 +522,8 @@ function getBranchName(changelogFilename) {
         .replace("/", "-")
         .replace("\\", "-");
     const now = new Date();
-    return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}`;
+    const seconds = now.getTime() / 1000;
+    return `${now.getFullYear()}-${getWeekNumber(new Date())}-${name}-${seconds}`;
 }
 function createGit() {
     return __awaiter(this, void 0, void 0, function* () {
