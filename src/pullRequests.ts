@@ -96,7 +96,7 @@ export async function updateChangelogFile({
     changelog.headerContent,
     "\n---\n",
     `## ${getYearAndWeekNumber(now)}`,
-    ...commits.map(commit => `* ${commit.title}`),
+    ...commits.map(commit => `* ${commit.titleMarkdown}`),
     "",
     changelog.bodyContent,
     "\n---\n",

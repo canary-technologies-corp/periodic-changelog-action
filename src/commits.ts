@@ -3,10 +3,12 @@ import { asRelative } from "./changelogs";
 import { dirname } from "path";
 import * as glob from "@actions/glob";
 import * as core from "@actions/core";
+import * as github from "@actions/github";
 
 export interface CommitLog {
   hash: string;
-  title: string;
+  titleRaw: string;
+  titleMarkdown: string;
   tag: string | null;
 }
 
@@ -51,7 +53,8 @@ export async function getCommitsForChangelog({
       }
       return {
         hash: result[1],
-        title: result[3],
+        titleRaw: result[3],
+        titleMarkdown: enhanceTitleWithMarkdown(result[3]),
         tag: result[2]?.replace("(tag: ", "")?.replace(")", "") ?? null,
       };
     });
@@ -67,4 +70,15 @@ async function getRelativeSiblingPaths(
     implicitDescendants: false,
   });
   return (await globber.glob()).map(p => asRelative(p));
+}
+
+function enhanceTitleWithMarkdown(title: string): string {
+  const result = title.trim().match(/^(.*)\(#(\d+)\)$/);
+  if (!result?.[2]) return title;
+  return `${result[1]} ([#${result[2]}](${buildPullUrl(result[2])}))}`;
+}
+
+function buildPullUrl(pullNumber: string): string {
+  const { owner, repo } = github.context.repo;
+  return `https://github.com/${owner}/${repo}/pull/${pullNumber}`;
 }

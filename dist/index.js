@@ -217,6 +217,7 @@ const changelogs_1 = __nccwpck_require__(2082);
 const path_1 = __nccwpck_require__(1017);
 const glob = __importStar(__nccwpck_require__(8090));
 const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
 function getCommitsForChangelog({ changelogFilename, since, }) {
     return __awaiter(this, void 0, void 0, function* () {
         let output = "";
@@ -249,7 +250,8 @@ function getCommitsForChangelog({ changelogFilename, since, }) {
             }
             return {
                 hash: result[1],
-                title: result[3],
+                titleRaw: result[3],
+                titleMarkdown: enhanceTitleWithMarkdown(result[3]),
                 tag: (_c = (_b = (_a = result[2]) === null || _a === void 0 ? void 0 : _a.replace("(tag: ", "")) === null || _b === void 0 ? void 0 : _b.replace(")", "")) !== null && _c !== void 0 ? _c : null,
             };
         });
@@ -266,6 +268,16 @@ function getRelativeSiblingPaths(changelogFilename) {
         });
         return (yield globber.glob()).map(p => (0, changelogs_1.asRelative)(p));
     });
+}
+function enhanceTitleWithMarkdown(title) {
+    const result = title.trim().match(/^(.*)\(#(\d+)\)$/);
+    if (!(result === null || result === void 0 ? void 0 : result[2]))
+        return title;
+    return `${result[1]} ([#${result[2]}](${buildPullUrl(result[2])}))}`;
+}
+function buildPullUrl(pullNumber) {
+    const { owner, repo } = github.context.repo;
+    return `https://github.com/${owner}/${repo}/pull/${pullNumber}`;
 }
 
 
@@ -479,7 +491,7 @@ function updateChangelogFile({ changelogFilename, changelog, commits, }) {
             changelog.headerContent,
             "\n---\n",
             `## ${getYearAndWeekNumber(now)}`,
-            ...commits.map(commit => `* ${commit.title}`),
+            ...commits.map(commit => `* ${commit.titleMarkdown}`),
             "",
             changelog.bodyContent,
             "\n---\n",
