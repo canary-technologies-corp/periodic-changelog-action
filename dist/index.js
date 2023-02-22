@@ -56,6 +56,7 @@ function parseChangelog(changelogString) {
         headerContent: (header === null || header === void 0 ? void 0 : header.trim()) || null,
         bodyContent: body.trim(),
         footerContent: (footer === null || footer === void 0 ? void 0 : footer.trim()) || null,
+        changeSets: parseChangeSets(body.trim()),
         owner: header ? parseOwner(header) : [],
         notify: header ? parseNotify(header) : [],
         lastRan: footer ? parseLastRun(footer) : null,
@@ -110,6 +111,35 @@ function parseLastRun(footerContent) {
         return isNaN(date.getTime()) ? null : date;
     }
     return null;
+}
+function parseChangeSets(body) {
+    const sections = [];
+    const headingsRegex = /##\s*([A-z0-9.]*)\s*\n/gi;
+    let match;
+    while ((match = headingsRegex.exec(body))) {
+        sections.push({
+            raw: match[0],
+            title: match[1],
+            startIndex: match.index,
+        });
+    }
+    return sections.map((section, index) => {
+        const start = section.startIndex + section.raw.length;
+        const end = sections[index + 1]
+            ? sections[index + 1].startIndex
+            : undefined;
+        const content = body.slice(start, end);
+        return {
+            title: section.title,
+            changes: parseChanges(content),
+        };
+    });
+}
+function parseChanges(changesContent) {
+    return changesContent
+        .split(/^\s*\*\s+/gm)
+        .map(c => c.trim())
+        .filter(c => c);
 }
 
 
@@ -326,10 +356,26 @@ const changelog_1 = __nccwpck_require__(1082);
 const changelogs_1 = __nccwpck_require__(2082);
 const commits_1 = __nccwpck_require__(3916);
 const pullRequests_1 = __nccwpck_require__(4217);
+const github = __importStar(__nccwpck_require__(5438));
+var Operation;
+(function (Operation) {
+    Operation["UPDATE_CHANGELOGS"] = "update_changelogs";
+    Operation["NOTIFY_SLACK"] = "notify_slack";
+})(Operation || (Operation = {}));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            updateChangelogs();
+            const operation = core.getInput("operation");
+            switch (operation) {
+                case Operation.UPDATE_CHANGELOGS:
+                    yield updateChangelogs();
+                    break;
+                case Operation.NOTIFY_SLACK:
+                    yield notifySlack();
+                    break;
+                default:
+                    throw new Error(`Unknown operation: ${operation}`);
+            }
         }
         catch (error) {
             if (error instanceof Error)
@@ -379,6 +425,12 @@ function updateChangelog(changelogFilename) {
             commits,
         });
         core.info(`Created PR: ${url}`);
+    });
+}
+function notifySlack() {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.debug(JSON.stringify(github.context.payload.pull_request, undefined, 2));
+        // TODO: Notify Slack.
     });
 }
 function getLastWeekDate() {

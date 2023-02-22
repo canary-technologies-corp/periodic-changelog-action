@@ -3,6 +3,7 @@ import { readChangelog } from "./changelog";
 import { asRelative, findChangelogs } from "./changelogs";
 import { getCommitsForChangelog } from "./commits";
 import { createChangelogPullRequest } from "./pullRequests";
+import * as github from "@actions/github";
 
 enum Operation {
   UPDATE_CHANGELOGS = "update_changelogs",
@@ -72,6 +73,8 @@ async function updateChangelog(changelogFilename: string): Promise<void> {
 }
 
 async function notifySlack() {
+  core.debug(JSON.stringify(github.context.payload.pull_request, undefined, 2));
+
   // TODO: Notify Slack.
 }
 

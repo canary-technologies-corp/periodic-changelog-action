@@ -1,8 +1,8 @@
-name: Test Period Changelog
+name: Test Periodic Changelog
 on:
   workflow_dispatch:
 jobs:
-  self: # Note: Uses 'dist' build.
+  periodic-changelog: # Note: Uses 'dist' build.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
