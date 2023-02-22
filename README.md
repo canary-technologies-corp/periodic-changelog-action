@@ -30,7 +30,19 @@ Each app (`authors` and `books`) maintains its own changelog, however, pull requ
 
 Periodic Changelog captures commits affecting the directory of each changelog and prepares a pull request appending to each changelog. Owners can then edit the pull requests to specific to the domain before merging for a continuous history.
 
-## Setup
-```
+## Changelog
+```md
+# Example changelog
+* Owner: blakevanlan
+* Notify: blakevanlan
+
+---
+
+## 2023.01
+* Fake change ([#5](https://github.com/canary-technologies-corp/periodic-changelog-action/pull/5))
+
+---
+
+Last ran: 2023-02-22T14:03:39.241Z
 ```
 
