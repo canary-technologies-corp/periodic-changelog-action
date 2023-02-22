@@ -20,7 +20,7 @@ async function updateChangelogs(): Promise<void> {
   for (const changelog of changelogs) {
     core.startGroup(asRelative(changelog));
     try {
-      updateChangelog(changelog);
+      await updateChangelog(changelog);
     } catch (error) {
       if (error instanceof Error) core.error(error.message);
     } finally {

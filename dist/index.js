@@ -345,7 +345,7 @@ function updateChangelogs() {
         for (const changelog of changelogs) {
             core.startGroup((0, changelogs_1.asRelative)(changelog));
             try {
-                updateChangelog(changelog);
+                yield updateChangelog(changelog);
             }
             catch (error) {
                 if (error instanceof Error)
