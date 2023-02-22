@@ -1,4 +1,4 @@
-name: Test Periodic Changelog
+name: Test Notify Slack
 on:
   workflow_dispatch:
 jobs:
