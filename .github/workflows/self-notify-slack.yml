@@ -1,0 +1,14 @@
+name: Test Notify Slack
+on:
+  workflow_dispatch:
+jobs:
+  notify-slack: # Note: Uses 'dist' build.
+    # if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'changelog')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./
+        operation: notify_slack
+        slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
