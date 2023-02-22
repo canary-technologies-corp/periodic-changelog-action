@@ -7,7 +7,7 @@ inputs:
     required: false
     default: main
   operation:
-    description: 'update_changelogs' or 'notify_slack' 
+    description: "'update_changelogs' or 'notify_slack'"
     required: false
     default: update_changelogs
   slack_webhook:
