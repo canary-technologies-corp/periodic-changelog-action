@@ -111,7 +111,7 @@ async function notifySlack() {
         changelog,
         slackWebhook,
         changelogFilename,
-        pullRequestUrl: github.context.payload.pull_request._links.html,
+        pullRequestUrl: github.context.payload.pull_request._links.html.href,
       });
     } catch (error) {
       if (error instanceof Error) core.error(error.message);

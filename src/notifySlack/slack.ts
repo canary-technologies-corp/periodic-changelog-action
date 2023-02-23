@@ -55,7 +55,7 @@ export async function sendSlackMessage({
       },
     ],
   });
-  core.info(JSON.stringify(response, undefined, 2));
+  core.info(JSON.stringify(response.data, undefined, 2));
   if (response.status != 200) {
     throw new Error("Failed to send Slack message");
   }
