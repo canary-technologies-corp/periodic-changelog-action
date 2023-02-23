@@ -1,5 +1,5 @@
 import * as exec from "@actions/exec";
-import { asRelative } from "./changelogs";
+import { asRelative } from "./../utils";
 import { dirname } from "path";
 import * as glob from "@actions/glob";
 import * as core from "@actions/core";

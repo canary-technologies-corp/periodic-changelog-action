@@ -7,7 +7,3 @@ export async function findChangelogs(): Promise<string[]> {
   });
   return globber.glob();
 }
-
-export function asRelative(changelogFilename: string): string {
-  return changelogFilename.replace(`${process.cwd()}/`, "");
-}

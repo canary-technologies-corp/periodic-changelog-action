@@ -1,11 +1,11 @@
-import { Changelog } from "./changelog";
+import { Changelog } from "../changelog";
 import { CommitLog } from "./commits";
 import { writeFile } from "fs/promises";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import simpleGit, { SimpleGit } from "simple-git";
 import { dirname, join } from "path";
-import { asRelative } from "./changelogs";
+import { asRelative } from "./../utils";
 
 export async function createChangelogPullRequest({
   changelogFilename,

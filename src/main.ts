@@ -1,9 +1,12 @@
 import * as core from "@actions/core";
 import { readChangelog } from "./changelog";
-import { asRelative, findChangelogs } from "./changelogs";
-import { getCommitsForChangelog } from "./commits";
-import { createChangelogPullRequest } from "./pullRequests";
+import { findChangelogs } from "./updateChangelogs/changelogs";
+import { getCommitsForChangelog } from "./updateChangelogs/commits";
+import { createChangelogPullRequest } from "./updateChangelogs/changelogPullRequest";
 import * as github from "@actions/github";
+import { getChangedChangelogFilenames } from "./notifySlack/files";
+import { sendSlackMessage } from "./notifySlack/slack";
+import { asRelative } from "./utils";
 
 enum Operation {
   UPDATE_CHANGELOGS = "update_changelogs",
@@ -74,8 +77,48 @@ async function updateChangelog(changelogFilename: string): Promise<void> {
 
 async function notifySlack() {
   core.debug(JSON.stringify(github.context.payload.pull_request, undefined, 2));
+  if (github.context.payload.pull_request?.state != "closed") {
+    throw new Error("Can only run in the context of a pull request merge.");
+  }
+  const slackWebhook = core.getInput("slack_webhook");
+  if (!slackWebhook) {
+    throw new Error("Missing 'slack_webhook' input.");
+  }
 
-  // TODO: Notify Slack.
+  const baseSha = github.context.payload.pull_request.base.sha as string;
+  const headSha = github.context.payload.pull_request.head.sha as string;
+  core.info(`Base commit: ${baseSha}`);
+  core.info(`Head commit: ${headSha}`);
+
+  const changelogFilenames = await getChangedChangelogFilenames({
+    baseSha,
+    headSha,
+  });
+  core.info(`Found changelogs:\n ${changelogFilenames.join("\n")}`);
+
+  for (const changelogFilename of changelogFilenames) {
+    core.startGroup(asRelative(changelogFilename));
+    try {
+      core.debug("Reading changelog...");
+      const changelog = await readChangelog(changelogFilename);
+
+      if (!changelog.changeSets.length) {
+        throw new Error("Changelog did not have any changesets.");
+      }
+
+      core.debug("Sending Slack message...");
+      await sendSlackMessage({
+        changelog,
+        slackWebhook,
+        changelogFilename,
+        pullRequestUrl: github.context.payload.pull_request._links.html,
+      });
+    } catch (error) {
+      if (error instanceof Error) core.error(error.message);
+    } finally {
+      core.endGroup();
+    }
+  }
 }
 
 function getLastWeekDate() {
