@@ -47,6 +47,7 @@ export async function createChangelogPullRequest({
     title: `${yearAndWeek}: Changelog for \`/${folder}\``,
     body: `Please review and merge the changelog for \`/${folder}\`.`,
     maintainer_can_modify: true,
+    draft: true,
   });
   await octokit.rest.issues.addLabels({
     ...github.context.repo,
@@ -55,26 +56,25 @@ export async function createChangelogPullRequest({
   });
 
   // Add assignees (if any).
-  if (changelog.notify.length) {
+  if (changelog.owner.length) {
     core.debug(`Adding assignees: ${changelog.owner}`);
     await octokit.rest.issues.addAssignees({
       ...github.context.repo,
       issue_number: pull.number,
-      assignees: changelog.notify,
+      assignees: changelog.owner,
     });
   } else {
     core.debug("No assignees found.");
   }
 
   // Assign reviewer (if any).
-  if (changelog.owner.length) {
-    core.debug(`Adding reviewers: ${changelog.owner}`);
-    const result = await octokit.rest.pulls.requestReviewers({
+  if (changelog.notify.length) {
+    core.debug(`Adding reviewers: ${changelog.notify}`);
+    await octokit.rest.pulls.requestReviewers({
       ...github.context.repo,
       pull_number: pull.number,
-      reviewers: changelog.owner,
+      reviewers: changelog.notify,
     });
-    core.debug(JSON.stringify(result, null, 2));
   } else {
     core.debug("No reviewers found.");
   }

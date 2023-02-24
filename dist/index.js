@@ -576,21 +576,20 @@ function createChangelogPullRequest({ changelogFilename, changelog, commits, }) 
         const yearAndWeek = getYearAndWeekNumber(new Date());
         const folder = (0, path_1.dirname)((0, utils_1.asRelative)(changelogFilename));
         const octokit = github.getOctokit(core.getInput("github_token"));
-        const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for \`/${folder}\``, body: `Please review and merge the changelog for \`/${folder}\`.`, maintainer_can_modify: true }));
+        const { data: pull } = yield octokit.rest.pulls.create(Object.assign(Object.assign({}, github.context.repo), { base: baseBranch, head: branchName, title: `${yearAndWeek}: Changelog for \`/${folder}\``, body: `Please review and merge the changelog for \`/${folder}\`.`, maintainer_can_modify: true, draft: true }));
         yield octokit.rest.issues.addLabels(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, labels: ["Changelog"] }));
         // Add assignees (if any).
-        if (changelog.notify.length) {
+        if (changelog.owner.length) {
             core.debug(`Adding assignees: ${changelog.owner}`);
-            yield octokit.rest.issues.addAssignees(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, assignees: changelog.notify }));
+            yield octokit.rest.issues.addAssignees(Object.assign(Object.assign({}, github.context.repo), { issue_number: pull.number, assignees: changelog.owner }));
         }
         else {
             core.debug("No assignees found.");
         }
         // Assign reviewer (if any).
-        if (changelog.owner.length) {
-            core.debug(`Adding reviewers: ${changelog.owner}`);
-            const result = yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github.context.repo), { pull_number: pull.number, reviewers: changelog.owner }));
-            core.debug(JSON.stringify(result, null, 2));
+        if (changelog.notify.length) {
+            core.debug(`Adding reviewers: ${changelog.notify}`);
+            yield octokit.rest.pulls.requestReviewers(Object.assign(Object.assign({}, github.context.repo), { pull_number: pull.number, reviewers: changelog.notify }));
         }
         else {
             core.debug("No reviewers found.");
