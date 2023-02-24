@@ -3,7 +3,7 @@ description: Generates updates to changelogs based on pull requests
 author: Canary Technologies Corp
 branding:
   icon: list
-  color: "#1c91fa"
+  color: blue
 inputs:
   base_branch:
     description: Branch the pull requests should be against (e.g 'main')
