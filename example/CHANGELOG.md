@@ -5,6 +5,9 @@
 ---
 
 ## 2023.08
+* Update foo.ts ([#17](https://github.com/canary-technologies-corp/periodic-changelog-action/pull/17))
+
+## 2023.08
 * Update index.ts ([#15](https://github.com/canary-technologies-corp/periodic-changelog-action/pull/15))
 
 ## 2023.08
@@ -20,4 +23,4 @@
 
 ---
 
-Last ran: 2023-02-23T16:01:08.671Z
+Last ran: 2023-02-24T13:40:58.262Z
