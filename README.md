@@ -106,10 +106,22 @@ Notes:
 * This repo follows the [action versioning guide](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md). Major version tags (example: `v1`) are moved with each release. Additionally, each release is tagged with a specific version (example: `v1.0.0`).
 
 Here are the release steps:
-1. Package the new version
-  ```
-  $ npm ci && npm run build && npm run publish
-  $ git add dist
-  $ git commit -a -m "Packaged action"
-  $ git push origin releases/v1
-  ```
+1. Package the new version.
+    ```
+    $ git checkout main
+    $ npm ci && npm run build && npm run publish
+    $ git add dist
+    $ git commit -a -m "Packaged action"
+    $ git push
+    ```
+2. Tag the new version (replace `vX.X.X`).
+    ```
+    $ git tag -fa vX.X.X -m "Adds vX.X.X tag"
+    $ git push origin vX.X.X
+    ```
+3. Move the major version tag (replace `vX` with major version).
+    ```
+    $ git tag -fa vX -m "Moves vX tag"
+    $ git push origin vX --force
+    ```
+4. Create a release [through the UI](https://github.com/canary-technologies-corp/periodic-changelog-action/releases/new).
