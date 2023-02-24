@@ -109,7 +109,7 @@ Here are the release steps:
 1. Package the new version.
     ```
     $ git checkout main
-    $ npm ci && npm run build && npm run publish
+    $ npm ci && npm run build && npm run package
     $ git add dist
     $ git commit -a -m "Packaged action"
     $ git push
