@@ -47,8 +47,8 @@ Description of the domain. The header section of the changelog is anything above
 Last ran: 2023-02-22T14:03:39.241Z
 ```
 **Notes**:
-* Include `Owner:` followed by comma-separated usernames to request a review upon PR creation
-* Include `Notify:` followed by comma-separated usernames to set as assignee upon PR creation
+* Include `Owner:` followed by comma-separated usernames to set as the assignee. Best practice is for this to be the individual responsible for maintaining the changelog.
+* Include `Notify:` followed by comma-separated usernames to request review from upon PR creation.
 * `Last run: ...` in the footer section determines the time range to considered on the next run. Commits prior to the "last ran" time will be ignored.
 
 
@@ -91,7 +91,7 @@ jobs:
     if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'Changelog')
     runs-on: ubuntu-latest
     steps:
-      - uses: ./
+      - uses: canary-technologies-corp/periodic-changelog-action@v1
         with:
           operation: notify_slack
           slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
