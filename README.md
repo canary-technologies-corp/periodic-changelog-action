@@ -98,5 +98,18 @@ jobs:
 ```
 Create SLACK_WEBHOOK secret using GitHub Action's Secret. You can [generate a Slack incoming webhook token from here](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
 
+---
 
+## Publish to a distribution branch
+Notes:
+* Actions are run from GitHub repos so the packaged `dist` folder needs to be committed.
+* This repo follows the [action versioning guide](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md). Major version tags (example: `v1`) are moved with each release. Additionally, each release is tagged with a specific version (example: `v1.0.0`).
 
+Here are the release steps:
+1. Package the new version
+  ```
+  $ npm ci && npm run build && npm run publish
+  $ git add dist
+  $ git commit -a -m "Packaged action"
+  $ git push origin releases/v1
+  ```
