@@ -4,7 +4,7 @@ This GitHub Action automates periodically generating pull requests for changelog
 ### Why?
 Changelogs within domains (often directories) provide a historical perspective on why changes were made to a domain. Changes (pull requests) often simultaneously affect multiple domains at once, and the title of pull request often focuses on the impact to one of the domains (the domain primarily being affected) without carrying enough context to explain why changes in other domains occurred. The goal of the changelog in each domain is to capture the nature of each change from its own perspective.
 
-For example, here's a sample Django application with changelogs nested within Django apps (domains).
+For example, here's a sample Django application with changelogs nested within apps (aka domains).
 ```
 root
 ├─ authors
@@ -69,3 +69,34 @@ jobs:
           fetch-depth: 0 # Required: fetch all history for the repository.
       - uses: canary-technologies-corp/periodic-changelog-action@v1
 ```
+
+## Publish notifications to Slack
+This action supports publishing changelog updates to Slack when changelog pull requests are merged. 
+
+Here's an example message:
+
+<img width="393" alt="image" src="https://user-images.githubusercontent.com/987656/221193527-c6e20bd8-77f4-406d-968d-488d4094d701.png">
+Actual pull request: https://github.com/canary-technologies-corp/periodic-changelog-action/pull/18
+
+### Configuration
+```yml
+name: Changelog - Notify Slack
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled, closed]
+
+jobs:
+  notify-slack:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'Changelog')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./
+        with:
+          operation: notify_slack
+          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+```
+Create SLACK_WEBHOOK secret using GitHub Action's Secret. You can [generate a Slack incoming webhook token from here](https://slack.com/apps/A0F7XDUAZ-incoming-webhooks).
+
+
+
